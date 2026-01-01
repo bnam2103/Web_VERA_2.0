@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <title>VERA AI</title>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- =========================
+       INTRO OVERLAY (TRAILER)
+  ========================== -->
+  <div id="intro" class="intro">
+
+    <!-- Trailer video (DO NOT autoplay) -->
+    <video
+      id="intro-video"
+      muted
+      playsinline
+      preload="metadata"
+      poster="vera_poster.jpg"
+    >
+      <source src="VERA_commercial_2.mp4" type="video/mp4">
+    </video>
+
+    <!-- Enable sound (starts video) -->
+    <button id="enable-sound" class="intro-btn sound">
+      Watch the trailer
+    </button>
+
+    <!-- Skip intro -->
+    <button id="skip-intro" class="intro-btn skip">
+      Skip the trailer
+    </button>
+  </div>
+
+  <!-- =========================
+       MAIN APP LAYOUT
+  ========================== -->
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <section class="sidebar-section">
+        <h2>About VERA</h2>
+        <p>
+          VERA is a conversational AI demonstrating real-time
+          speech recognition, reasoning, and voice synthesis.
+        </p>
+        <p>
+          Built to showcase an end-to-end ASR → LLM → TTS pipeline.
+        </p>
+        <p><strong>Created by Nom</strong></p>
+      </section>
+
+      <section class="sidebar-section">
+        <h2>How to Use</h2>
+        <ol>
+          <li>Click the microphone to start listening</li>
+          <li>Speak naturally</li>
+          <li>Pause to let VERA think and respond</li>
+          <li>Click the microphone again to stop listening</li>
+        </ol>
+      </section>
+
+      <section class="sidebar-section">
+        <h2>Feedback</h2>
+        <textarea
+          id="feedback-input"
+          placeholder="Your feedback..."
+          rows="3"
+        ></textarea>
+        <button id="send-feedback">Send Feedback</button>
+        <div id="feedback-status"></div>
+      </section>
+
+      <section class="sidebar-section sidebar-bottom">
+        <h2>Status</h2>
+        <div id="server-status" class="server-status offline">
+          🔴 Server Offline
+        </div>
+        <p>Working Hours: 6pm – 12am (PST)</p>
+      </section>
+    </aside>
+
+    <!-- CHAT -->
+    <main class="chat">
+      <div class="conversation" id="conversation"></div>
+
+      <div class="input-bar">
+        <button id="record">🎙️</button>
+        <span id="status" class="status idle">Idle</span>
+        <span
+          id="server-status-inline"
+          class="server-status offline mobile-only"
+        >
+          🔴 Offline
+        </span>
+      </div>
+
+      <audio id="audio" preload="auto"></audio>
+    </main>
+  </div>
+
+  <!-- =========================
+       INTRO LOGIC
+  ========================== -->
+  <script>
+    const intro = document.getElementById("intro");
+    const introVideo = document.getElementById("intro-video");
+    const skipBtn = document.getElementById("skip-intro");
+    const soundBtn = document.getElementById("enable-sound");
+
+    const INTRO_SEEN_KEY = "vera_intro_seen";
+
+    function hideIntro() {
+      intro.style.transition = "opacity 0.8s ease";
+      intro.style.opacity = "0";
+
+      setTimeout(() => {
+        intro.remove();
+        localStorage.setItem(INTRO_SEEN_KEY, "true");
+      }, 800);
+    }
+
+    // 🔊 Enable sound + start video
+    soundBtn.addEventListener("click", () => {
+      introVideo.muted = false;
+      introVideo.volume = 1.0;
+      introVideo.play();     // 🔑 user gesture starts playback
+      soundBtn.remove();     // remove prompt
+    });
+
+    // ⏭️ Skip intro
+    skipBtn.addEventListener("click", () => {
+      introVideo.pause();
+      introVideo.currentTime = 0;
+      hideIntro();
+    });
+
+    introVideo.addEventListener("ended", hideIntro);
+
+    // Skip intro entirely if already seen
+    if (localStorage.getItem(INTRO_SEEN_KEY)) {
+      intro.remove();
+    }
+  </script>
+
+  <script src="app.js"></script>
+</body>
+</html>
