@@ -2,50 +2,109 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
   <title>VERA AI</title>
-
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
+<!-- =========================
+     BACKGROUND VIDEO
+========================= -->
+<video
+  id="bg-video"
+  autoplay
+  muted
+  loop
+  playsinline
+>
+  <source src="background.mp4" type="video/mp4">
+</video>
 
-  <!-- =========================
-       INTRO OVERLAY (TRAILER)
-  ========================== -->
-  <div id="intro" class="intro">
+<!-- =========================
+     INTRO OVERLAY (TRAILER)
+========================= -->
+<div id="intro" class="intro">
+  <video
+    id="intro-video"
+    muted
+    playsinline
+    preload="metadata"
+    poster="vera_poster.jpg"
+  >
+    <source src="VERA_commercial_2.mp4" type="video/mp4">
+  </video>
 
-    <!-- Trailer video (DO NOT autoplay) -->
-    <video
-      id="intro-video"
-      muted
-      playsinline
-      preload="metadata"
-      poster="vera_poster.jpg"
-    >
-      <source src="VERA_commercial_2.mp4" type="video/mp4">
-    </video>
+  <button id="enable-sound" class="intro-btn sound">
+    Watch the trailer
+  </button>
 
-    <!-- Enable sound (starts video) -->
-    <button id="enable-sound" class="intro-btn sound">
-      Watch the trailer
-    </button>
+  <button id="skip-intro" class="intro-btn skip">
+    Skip the trailer
+  </button>
+</div>
 
-    <!-- Skip intro -->
-    <button id="skip-intro" class="intro-btn skip">
-      Skip the trailer
-    </button>
-  </div>
+<!-- =========================
+     LANDING / HOME
+========================= -->
+<section id="home">
 
-  <!-- =========================
-       MAIN APP LAYOUT
-  ========================== -->
+  <!-- TOP NAV -->
+  <nav class="top-nav">
+    <div class="nav-left">
+      <a href="/" class="nav-logo" id="nav-home">VERA</a>
+    </div>
+
+    <div class="nav-right">
+      <button class="nav-link" id="nav-about-vera">About VERA</button>
+      <button class="nav-link">About Me</button>
+      <button class="nav-link">My Other Projects</button>
+    </div>
+  </nav>
+
+  <header class="title-hero">
+    <h1 class="title-text">
+      VIRTUAL EXECUTIVE RESPONSE ASSISTANT
+    </h1>
+
+    <div class="scroll-hint">↓</div>
+  </header>
+
+  <!-- HERO -->
+  <header class="hero" id="about-vera">
+    <div class="hero-split">
+
+      <div class="hero-left">
+        <button
+          id="enter-vera"
+          class="hero-label"
+          aria-label="Enter VERA app"
+        >
+          [ ABOUT VERA ]
+        </button>
+      </div>
+
+      <div class="hero-right">
+        <p class="hero-text">
+          <span id="typed-text"></span>
+        </p>
+      </div>
+
+    </div>
+  </header>
+
+</section>
+
+<!-- =========================
+     VERA APP (ORIGINAL UI)
+========================= -->
+<section id="vera-app" hidden>
+
   <div class="layout">
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
+
       <section class="sidebar-section">
         <h2>About VERA</h2>
         <p>
@@ -86,10 +145,12 @@
         </div>
         <p>Working Hours: 6pm – 12am (PST)</p>
       </section>
+
     </aside>
 
     <!-- CHAT -->
     <main class="chat">
+
       <div class="conversation" id="conversation"></div>
 
       <div class="input-bar">
@@ -104,53 +165,182 @@
       </div>
 
       <audio id="audio" preload="auto"></audio>
+
     </main>
+
   </div>
+</section>
 
-  <!-- =========================
-       INTRO LOGIC
-  ========================== -->
-  <script>
-    const intro = document.getElementById("intro");
-    const introVideo = document.getElementById("intro-video");
-    const skipBtn = document.getElementById("skip-intro");
-    const soundBtn = document.getElementById("enable-sound");
+<!-- =========================
+     INTRO + NAV + SCROLL LOGIC
+========================= -->
+<script>
+  const intro = document.getElementById("intro");
+  const introVideo = document.getElementById("intro-video");
+  const skipBtn = document.getElementById("skip-intro");
+  const soundBtn = document.getElementById("enable-sound");
 
-    const INTRO_SEEN_KEY = "vera_intro_seen";
+  const home = document.getElementById("home");
+  const veraApp = document.getElementById("vera-app");
+  const enterBtn = document.getElementById("enter-vera");
+  const navHome = document.getElementById("nav-home");
+  const bgVideo = document.getElementById("bg-video");
+  const navAboutVera = document.getElementById("nav-about-vera");
+  const aboutVeraSection = document.getElementById("about-vera");
 
-    function hideIntro() {
-      intro.style.transition = "opacity 0.8s ease";
-      intro.style.opacity = "0";
+  const INTRO_SEEN_KEY = "vera_intro_seen_session";
+  const MAX_SCROLL = 700; // 👈 adjust for slower/faster transition
+  const BASE_BRIGHTNESS = 0.3;
+  const DARK_RANGE = 0.25;
 
-      setTimeout(() => {
-        intro.remove();
-        localStorage.setItem(INTRO_SEEN_KEY, "true");
-      }, 800);
-    }
+  if ("scrollRestoration" in history) {
+    history.scrollRestoration = "manual";
+  }
+  
+  function hideIntro() {
+    intro.style.transition = "opacity 0.8s ease";
+    intro.style.opacity = "0";
 
-    // 🔊 Enable sound + start video
-    soundBtn.addEventListener("click", () => {
-      introVideo.muted = false;
-      introVideo.volume = 1.0;
-      introVideo.play();     // 🔑 user gesture starts playback
-      soundBtn.remove();     // remove prompt
-    });
-
-    // ⏭️ Skip intro
-    skipBtn.addEventListener("click", () => {
-      introVideo.pause();
-      introVideo.currentTime = 0;
-      hideIntro();
-    });
-
-    introVideo.addEventListener("ended", hideIntro);
-
-    // Skip intro entirely if already seen
-    if (localStorage.getItem(INTRO_SEEN_KEY)) {
+    setTimeout(() => {
       intro.remove();
-    }
-  </script>
+      sessionStorage.setItem(INTRO_SEEN_KEY, "true");
+    }, 800);
+  }
 
-  <script src="app.js"></script>
+  soundBtn.onclick = () => {
+    introVideo.muted = false;
+    introVideo.play();
+    soundBtn.remove();
+  };
+
+  skipBtn.onclick = hideIntro;
+  introVideo.onended = hideIntro;
+
+  if (sessionStorage.getItem(INTRO_SEEN_KEY)) {
+    intro.remove();
+  }
+
+  // NAV TO ABOUT VERA
+  navAboutVera.onclick = () => {
+    aboutVeraSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  };
+  
+  
+  // ENTER VERA APP
+  enterBtn.onclick = () => {
+    home.hidden = true;
+    veraApp.hidden = false;
+    document.body.classList.add("app-open");
+    window.scrollTo(0, 0);
+  };
+
+  // FILE + DOMAIN SAFE HOME
+  navHome.onclick = (e) => {
+    if (location.protocol === "file:") {
+      e.preventDefault();
+      location.reload();
+    }
+  };
+
+  /* =========================
+     SCROLL-BASED FADE (NEW)
+  ========================= */
+
+  let ticking = false;
+
+  window.addEventListener("scroll", () => {
+    if (document.body.classList.contains("app-open")) return;
+
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        const progress = Math.min(window.scrollY / MAX_SCROLL, 1);
+
+        // ----- VIDEO DARKEN -----
+        let darkT = Math.min(progress / 0.6, 1);
+        // smoothstep
+        darkT = darkT * darkT * (3 - 2 * darkT);
+
+        const brightness =
+          BASE_BRIGHTNESS - darkT * DARK_RANGE;
+
+        bgVideo.style.setProperty("--v-brightness", brightness);
+
+        // ----- GRADIENT MORPH -----
+        let gradT = 0;
+        if (progress > 0.6) {
+          gradT = (progress - 0.6) / 0.4;
+          gradT = gradT * gradT;
+        }
+
+        // z-index reveal (late)
+        if (progress > 0.7) {
+          document.body.style.setProperty("--bg-z", "-1");
+        } else {
+          document.body.style.setProperty("--bg-z", "-3");
+        }
+
+        const start = { r: 3, g: 6, b: 10 };
+        const endTop = { r: 4, g: 8, b: 14 };
+        const endBottom = { r: 8, g: 18, b: 32 };
+
+        const lerp = (a, b) => Math.round(a + (b - a) * gradT);
+
+        document.body.style.setProperty("--g1-r", lerp(start.r, endTop.r));
+        document.body.style.setProperty("--g1-g", lerp(start.g, endTop.g));
+        document.body.style.setProperty("--g1-b", lerp(start.b, endTop.b));
+
+        document.body.style.setProperty("--g2-r", lerp(start.r, endBottom.r));
+        document.body.style.setProperty("--g2-g", lerp(start.g, endBottom.g));
+        document.body.style.setProperty("--g2-b", lerp(start.b, endBottom.b));
+
+        ticking = false;
+      });
+
+      ticking = true;
+    }
+  });
+
+
+  const typedEl = document.getElementById("typed-text");
+
+  const ABOUT_TEXT = `VERA is a conversational AI that demonstrates real-time
+  speech recognition, reasoning, and voice synthesis. It listens,
+  understands, and responds (either with words or actions). VERA focuses
+  on creating meaningful interactions rather than just automation.`;
+
+  let typeIndex = 0;
+  let typingStarted = false;
+
+  function startTyping() {
+    if (typingStarted) return;
+    typingStarted = true;
+
+    const typeInterval = setInterval(() => {
+      typedEl.textContent += ABOUT_TEXT[typeIndex];
+      typeIndex++;
+
+      if (typeIndex >= ABOUT_TEXT.length) {
+        clearInterval(typeInterval);
+      }
+    }, 22); // 👈 typing speed (lower = faster)
+  }
+  
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        startTyping();
+      }
+    },
+    { threshold: 0.4 }
+  );
+
+  observer.observe(aboutVeraSection);
+</script>
+
+<script src="app.js"></script>
 </body>
 </html>
+
