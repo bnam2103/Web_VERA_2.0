@@ -57,8 +57,9 @@
 
     <div class="nav-right">
       <button class="nav-link" id="nav-about-vera">About VERA</button>
-      <button class="nav-link">About Me</button>
-      <button class="nav-link">My Other Projects</button>
+      <button class="nav-link" id="nav-about-me">About Me</button>
+      <button class="nav-link" id="nav-projects">My Other Projects</button>
+
     </div>
   </nav>
 
@@ -77,7 +78,7 @@
       <div class="hero-left">
         <button
           id="enter-vera"
-          class="hero-label"
+          class="hero-label pulse"
           aria-label="Enter VERA app"
         >
           [ ABOUT VERA ]
@@ -88,6 +89,93 @@
         <p class="hero-text">
           <span id="typed-text"></span>
         </p>
+      </div>
+
+    </div>
+  </header>
+
+  <header class="hero" id="about-me">
+    <div class="hero-split reverse">
+
+      <div class="hero-left hero-text-left">
+        <p class="hero-text">
+          My name is Nam, and I am a third-year undergraduate student majoring in Data Science 
+          at the University of California, Irvine. Over the past year, I have developed a strong 
+          interest in machine learning and artificial intelligence, which led me to participate 
+          in Kaggle competitions and work on transformer models. These experiences ultimately 
+          brought me to this project VERA. I value not only how systems function, but also how 
+          they feel to use. My work blends engineering, design, and interaction, with a focus 
+          on intentional, user-centered experiences.
+        </p>
+      </div>
+
+      <div class="hero-right hero-label-right">
+        <a
+          href="https://www.linkedin.com/in/nam-nguyen-0aa9102a9/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hero-label pulse"
+          aria-label="Open LinkedIn profile"
+        >
+          [ ABOUT ME ]
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- =========================
+        HERO — OTHER PROJECTS
+    ========================= -->
+  <header class="hero" id="other-projects">
+    <div class="hero-split">
+
+      <div class="hero-left">
+        <a
+          href="https://github.com/bnam2103"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hero-label pulse"
+          aria-label="Open GitHub profile"
+        >
+          [ OTHER PROJECTS ]
+        </a>
+      </div>
+
+      <div class="hero-right">
+        <div class="projects-list">
+
+          <a
+            href="https://huggingface.co/nambn0321"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="project-item"
+          >
+            <h3>Transformer Models</h3>
+            <p>Experiments with attention, fine-tuning, and sequence modeling.</p>
+          </a>
+
+          <a
+            href="https://github.com/bnam2103/Kaggle_competitions"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="project-item"
+          >
+            <h3>Kaggle Competitions</h3>
+            <p>Applied ML projects focused on feature engineering and modeling.</p>
+          </a>
+
+          <a
+            href="https://github.com/bnam2103/Exploratory-Data-Analysis"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="project-item"
+          >
+            <h3>Data Analysis and presentations</h3>
+            <p>Data analyses exploring pricing, experience, and predictive modeling across datasets.</p>
+          </a>
+
+        </div>
       </div>
 
     </div>
@@ -172,9 +260,13 @@
 </section>
 
 <!-- =========================
-     INTRO + NAV + SCROLL LOGIC
+     INTRO + NAV + SCROLL + TYPE LOGIC
 ========================= -->
 <script>
+  /* =========================
+     DOM REFERENCES
+  ========================= */
+
   const intro = document.getElementById("intro");
   const introVideo = document.getElementById("intro-video");
   const skipBtn = document.getElementById("skip-intro");
@@ -183,20 +275,34 @@
   const home = document.getElementById("home");
   const veraApp = document.getElementById("vera-app");
   const enterBtn = document.getElementById("enter-vera");
+
   const navHome = document.getElementById("nav-home");
-  const bgVideo = document.getElementById("bg-video");
   const navAboutVera = document.getElementById("nav-about-vera");
+
   const aboutVeraSection = document.getElementById("about-vera");
+  const typedEl = document.getElementById("typed-text");
+
+  const bgVideo = document.getElementById("bg-video");
+
+  /* =========================
+     GLOBAL CONFIG
+  ========================= */
 
   const INTRO_SEEN_KEY = "vera_intro_seen_session";
-  const MAX_SCROLL = 700; // 👈 adjust for slower/faster transition
+
+  const MAX_SCROLL = 700;
   const BASE_BRIGHTNESS = 0.3;
   const DARK_RANGE = 0.25;
 
+  /* Disable browser scroll restore */
   if ("scrollRestoration" in history) {
     history.scrollRestoration = "manual";
   }
-  
+
+  /* =========================
+     INTRO LOGIC
+  ========================= */
+
   function hideIntro() {
     intro.style.transition = "opacity 0.8s ease";
     intro.style.opacity = "0";
@@ -220,16 +326,19 @@
     intro.remove();
   }
 
-  // NAV TO ABOUT VERA
+  /* =========================
+     NAVIGATION
+  ========================= */
+
+  // Scroll to About VERA
   navAboutVera.onclick = () => {
     aboutVeraSection.scrollIntoView({
       behavior: "smooth",
       block: "start"
     });
   };
-  
-  
-  // ENTER VERA APP
+
+  // Enter VERA App
   enterBtn.onclick = () => {
     home.hidden = true;
     veraApp.hidden = false;
@@ -237,7 +346,7 @@
     window.scrollTo(0, 0);
   };
 
-  // FILE + DOMAIN SAFE HOME
+  // Logo reload (file-safe)
   navHome.onclick = (e) => {
     if (location.protocol === "file:") {
       e.preventDefault();
@@ -246,7 +355,7 @@
   };
 
   /* =========================
-     SCROLL-BASED FADE (NEW)
+     SCROLL-BASED BACKGROUND
   ========================= */
 
   let ticking = false;
@@ -258,28 +367,24 @@
       requestAnimationFrame(() => {
         const progress = Math.min(window.scrollY / MAX_SCROLL, 1);
 
-        // ----- VIDEO DARKEN -----
-        let darkT = Math.min(progress / 0.6, 1);
-        // smoothstep
-        darkT = darkT * darkT * (3 - 2 * darkT);
+        /* ----- VIDEO DARKEN ----- */
+        let darkT = progress;
+        darkT = darkT * darkT * (3 - 2 * darkT); // smoothstep
 
         const brightness =
-          BASE_BRIGHTNESS - darkT * DARK_RANGE;
+          Math.max(BASE_BRIGHTNESS - darkT * DARK_RANGE, 0.15);
 
         bgVideo.style.setProperty("--v-brightness", brightness);
 
-        // ----- GRADIENT MORPH -----
+        /* ----- VIDEO FADE ----- */
+        const videoOpacity = Math.max(1 - progress * 1.2, 0);
+        bgVideo.style.opacity = videoOpacity;
+
+        /* ----- GRADIENT MORPH ----- */
         let gradT = 0;
         if (progress > 0.6) {
           gradT = (progress - 0.6) / 0.4;
           gradT = gradT * gradT;
-        }
-
-        // z-index reveal (late)
-        if (progress > 0.7) {
-          document.body.style.setProperty("--bg-z", "-1");
-        } else {
-          document.body.style.setProperty("--bg-z", "-3");
         }
 
         const start = { r: 3, g: 6, b: 10 };
@@ -303,20 +408,24 @@
     }
   });
 
-
-  const typedEl = document.getElementById("typed-text");
+  /* =========================
+     TYPING ANIMATION
+  ========================= */
 
   const ABOUT_TEXT = `VERA is a conversational AI that demonstrates real-time
-  speech recognition, reasoning, and voice synthesis. It listens,
-  understands, and responds (either with words or actions). VERA focuses
-  on creating meaningful interactions rather than just automation.`;
-
+speech recognition, reasoning, and voice synthesis. It listens,
+understands, and responds (either with words or actions). VERA focuses
+on creating meaningful interactions rather than just automation.`;
+  typedEl.textContent = ABOUT_TEXT; // For instant display (no typing)
   let typeIndex = 0;
   let typingStarted = false;
 
   function startTyping() {
     if (typingStarted) return;
     typingStarted = true;
+
+    // subtle pulse on [ ABOUT VERA ]
+    enterBtn.classList.add("pulse");
 
     const typeInterval = setInterval(() => {
       typedEl.textContent += ABOUT_TEXT[typeIndex];
@@ -325,9 +434,10 @@
       if (typeIndex >= ABOUT_TEXT.length) {
         clearInterval(typeInterval);
       }
-    }, 22); // 👈 typing speed (lower = faster)
+    }, 16);
   }
-  
+
+  /* Trigger typing when About section enters view */
   const observer = new IntersectionObserver(
     ([entry]) => {
       if (entry.isIntersecting) {
@@ -337,8 +447,28 @@
     { threshold: 0.4 }
   );
 
-  observer.observe(aboutVeraSection);
+  // observer.observe(aboutVeraSection); // Disabled to auto-start typing on page load
+  const navAboutMe = document.getElementById("nav-about-me");
+  const aboutMeSection = document.getElementById("about-me");
+
+  navAboutMe.onclick = () => {
+    aboutMeSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  };
+
+  const navProjects = document.getElementById("nav-projects");
+const projectsSection = document.getElementById("other-projects");
+
+navProjects.onclick = () => {
+  projectsSection.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+};
 </script>
+
 
 <script src="app.js"></script>
 </body>
