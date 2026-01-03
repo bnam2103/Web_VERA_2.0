@@ -81,7 +81,7 @@
           class="hero-label pulse"
           aria-label="Enter VERA app"
         >
-          [ ABOUT VERA ]
+          ABOUT VERA
         </button>
       </div>
 
@@ -93,32 +93,127 @@
 
     </div>
   </header>
+  <section class="vera-log scroll-reveal">
+    <div class="vera-log-inner">
+      <h1 class="patch-notes">PATCH NOTES</h1>
+      <h2>VERSION 1.0</h2>
+      <p class="vera-log-intro">
+        A usable conversational AI using speech as both input and output.
+        Turn-based interaction: user speaks → AI responds.
+        Transcriptions appear as chat bubbles in real time.
+      </p>
 
+      <p class="vera-log-stack">
+        <strong>Core Stack:</strong>
+        ASR (Whisper-large) · LLM (LLaMA 3.0) · TTS (fine-tuned)
+      </p>
+
+      <h3>Features / Implementations</h3>
+      <ul>
+        <li>Pause / Unpause via voice commands or physical button</li>
+        <li>Real-time time and date queries</li>
+        <li>Multi-user support via session-based history isolation</li>
+        <li>Feedback system (PC)</li>
+        <li>Responsive UI for mobile and desktop</li>
+        <li>Visible server health check</li>
+        <li>
+          Two personas:
+          <ul>
+            <li><strong>Default (LLaMA 3.0)</strong> — task-oriented</li>
+            <li><strong>JARVIS</strong> — conversational, affirming, Iron Man–inspired</li>
+          </ul>
+        </li>
+        <li>Balanced, informative UX</li>
+      </ul>
+
+      <h3>Issues Fixed</h3>
+      <ul>
+        <li>
+          Audio robustness using layered filtering:
+          ZCR, RMS volume threshold, VAD, ASR confidence
+        </li>
+        <li>
+          Prevented empty or accidental audio from entering history
+        </li>
+        <li>
+          GPU concurrency handling via module-level locking
+          (ASR / LLM / TTS)
+        </li>
+        <li>
+          Edge-case protections:
+          feedback limits, max users, hidden tunnel name,
+          capped history (40 messages), idle session cleanup
+        </li>
+        <li>
+          Privacy improvement:
+          no user audio saved locally;
+          transcriptions only logged temporarily for debugging
+        </li>
+      </ul>
+
+      <hr />
+
+      <h2>VERSION 2.0</h2>
+      <h3>In Progress</h3>
+      <ul>
+        <li>Improved TTS (Coqui)</li>
+        <li>
+          UI overhaul:
+          keyboard input, smoother animations,
+          simplified layout, scroll-based explanation
+          (Red Barrels–inspired)
+        </li>
+        <li>
+          Trailer concept:
+          all-caps typography,
+          Alan Watts narration,
+          cinematic montage
+        </li>
+        <li>Expanded actions</li>
+        <li>
+          Concurrent recording (interruptible streaming TTS)
+        </li>
+        <li>Public access & distribution strategy</li>
+        <li>Persona cloning and optimization</li>
+      </ul>
+
+    </div>
+  </section>
+  <!-- =========================
+        HERO — ABOUT ME
+    ========================= -->
   <header class="hero" id="about-me">
-    <div class="hero-split reverse">
+    <div class="hero-split about-me-layout">
 
-      <div class="hero-left hero-text-left">
-        <p class="hero-text">
-          My name is Nam, and I am a third-year undergraduate student majoring in Data Science 
-          at the University of California, Irvine. Over the past year, I have developed a strong 
-          interest in machine learning and artificial intelligence, which led me to participate 
-          in Kaggle competitions and work on transformer models. These experiences ultimately 
-          brought me to this project VERA. I value not only how systems function, but also how 
-          they feel to use. My work blends engineering, design, and interaction, with a focus 
-          on intentional, user-centered experiences.
-        </p>
-      </div>
-
-      <div class="hero-right hero-label-right">
+      <!-- LEFT: LABEL (CLICKABLE) + TEXT -->
+      <div class="hero-left about-me-text">
         <a
           href="https://www.linkedin.com/in/nam-nguyen-0aa9102a9/"
           target="_blank"
           rel="noopener noreferrer"
-          class="hero-label pulse"
+          class="about-me-label pulse"
           aria-label="Open LinkedIn profile"
         >
-          [ ABOUT ME ]
+          ABOUT ME
         </a>
+
+        <p class="hero-text">
+          My name is Nam, and I am a third-year undergraduate student majoring in Data Science
+          at the University of California, Irvine. Over the past few years, I have developed a strong
+          interest in machine learning and artificial intelligence, which led me to participate
+          in Kaggle competitions and work on transformer models. These experiences ultimately
+          brought me to this project VERA. My work blends engineering, design, and interaction,
+          with a focus on intentional, user-centered experiences.
+        </p>
+      </div>
+
+      <!-- RIGHT: PHOTO SPACE -->
+      <div class="hero-right about-me-media">
+        <img
+          src="me.jpg"
+          alt="Nam Nguyen"
+          class="about-me-photo"
+        >
       </div>
 
     </div>
@@ -128,58 +223,60 @@
         HERO — OTHER PROJECTS
     ========================= -->
   <header class="hero" id="other-projects">
-    <div class="hero-split">
+    <div class="other-projects-wrap">
 
-      <div class="hero-left">
+      <!-- CLICKABLE SECTION TITLE -->
+      <a
+        href="https://github.com/bnam2103"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="other-projects-title pulse"
+        aria-label="Open GitHub profile"
+      >
+        OTHER PROJECTS
+      </a>
+
+      <!-- PROJECT LIST -->
+      <div class="projects-list">
+
         <a
-          href="https://github.com/bnam2103"
+          href="https://huggingface.co/nambn0321"
           target="_blank"
           rel="noopener noreferrer"
-          class="hero-label pulse"
-          aria-label="Open GitHub profile"
+          class="project-item"
         >
-          [ OTHER PROJECTS ]
+          <h3>Transformer Models</h3>
+          <p>Experiments with transformer training pipelines, including custom collators and fine-tuning.</p>
         </a>
-      </div>
 
-      <div class="hero-right">
-        <div class="projects-list">
+        <a
+          href="https://github.com/bnam2103/Kaggle_competitions"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="project-item"
+        >
+          <h3>Kaggle Competitions</h3>
+          <p>Applied ML projects focused on feature engineering and modeling.</p>
+        </a>
 
-          <a
-            href="https://huggingface.co/nambn0321"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="project-item"
-          >
-            <h3>Transformer Models</h3>
-            <p>Experiments with attention, fine-tuning, and sequence modeling.</p>
-          </a>
+        <a
+          href="https://github.com/bnam2103/Exploratory-Data-Analysis"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="project-item"
+        >
+          <h3>Data Analysis and Presentations</h3>
+          <p>
+            Data analyses exploring pricing, experience,
+            and predictive modeling across datasets.
+          </p>
+        </a>
 
-          <a
-            href="https://github.com/bnam2103/Kaggle_competitions"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="project-item"
-          >
-            <h3>Kaggle Competitions</h3>
-            <p>Applied ML projects focused on feature engineering and modeling.</p>
-          </a>
-
-          <a
-            href="https://github.com/bnam2103/Exploratory-Data-Analysis"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="project-item"
-          >
-            <h3>Data Analysis and presentations</h3>
-            <p>Data analyses exploring pricing, experience, and predictive modeling across datasets.</p>
-          </a>
-
-        </div>
       </div>
 
     </div>
   </header>
+
 
 </section>
 
@@ -303,28 +400,56 @@
      INTRO LOGIC
   ========================= */
 
-  function hideIntro() {
-    intro.style.transition = "opacity 0.8s ease";
-    intro.style.opacity = "0";
+/* =========================
+   TITLE FLASH TRIGGER
+========================= */
 
-    setTimeout(() => {
-      intro.remove();
-      sessionStorage.setItem(INTRO_SEEN_KEY, "true");
-    }, 800);
-  }
+function triggerTitleFlash() {
+  const title = document.querySelector(".title-text");
+  if (!title) return;
 
-  soundBtn.onclick = () => {
-    introVideo.muted = false;
-    introVideo.play();
-    soundBtn.remove();
-  };
+  // Reset animation so it can replay cleanly
+  title.classList.remove("flash");
+  void title.offsetWidth; // force reflow
+  title.classList.add("flash");
+}
 
-  skipBtn.onclick = hideIntro;
-  introVideo.onended = hideIntro;
+/* =========================
+   INTRO LOGIC (FINAL)
+========================= */
 
-  if (sessionStorage.getItem(INTRO_SEEN_KEY)) {
+function hideIntro() {
+  intro.style.transition = "opacity 0.8s ease";
+  intro.style.opacity = "0";
+
+  setTimeout(() => {
     intro.remove();
-  }
+    sessionStorage.setItem(INTRO_SEEN_KEY, "true");
+
+    // 🔑 trigger AFTER intro is gone
+    triggerTitleFlash();
+  }, 800);
+}
+
+soundBtn.onclick = () => {
+  introVideo.muted = false;
+  introVideo.play();
+  soundBtn.remove();
+};
+
+skipBtn.onclick = hideIntro;
+introVideo.onended = hideIntro;
+
+/* =========================
+   RETURN VISITS / REFRESH
+========================= */
+
+if (sessionStorage.getItem(INTRO_SEEN_KEY)) {
+  intro.remove();
+
+  // 🔑 slight delay ensures layout + CSS are ready
+  setTimeout(triggerTitleFlash, 60);
+}
 
   /* =========================
      NAVIGATION
@@ -447,6 +572,9 @@ on creating meaningful interactions rather than just automation.`;
     { threshold: 0.4 }
   );
 
+  function triggerTitleFlash() {
+    document.querySelector(".title-text")?.classList.add("flash");
+  }
   // observer.observe(aboutVeraSection); // Disabled to auto-start typing on page load
   const navAboutMe = document.getElementById("nav-about-me");
   const aboutMeSection = document.getElementById("about-me");
@@ -459,14 +587,32 @@ on creating meaningful interactions rather than just automation.`;
   };
 
   const navProjects = document.getElementById("nav-projects");
-const projectsSection = document.getElementById("other-projects");
+  const projectsSection = document.getElementById("other-projects");
 
-navProjects.onclick = () => {
-  projectsSection.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-};
+  navProjects.onclick = () => {
+    projectsSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  };
+
+  const revealEls = document.querySelectorAll(".scroll-reveal");
+
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          revealObserver.unobserve(entry.target); // reveal once
+        }
+      });
+    },
+    {
+      threshold: 0.25
+    }
+  );
+
+  revealEls.forEach(el => revealObserver.observe(el));
 </script>
 
 
