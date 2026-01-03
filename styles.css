@@ -42,6 +42,27 @@ body::before {
 }
 
 /* =========================
+   VERA MODE (HARD LOCK)
+========================= */
+
+body.vera-mode::before {
+  background: radial-gradient(
+    circle at top,
+    rgb(6, 14, 28),
+    rgb(2, 6, 12)
+  ) !important;
+}
+
+body.vera-mode #bg-video {
+  display: none !important;
+}
+
+/* stop JS-controlled z-index weirdness */
+body.vera-mode {
+  --bg-z: -1;
+}
+
+/* =========================
    BACKGROUND VIDEO
 ========================= */
 
@@ -133,6 +154,51 @@ body::before {
 .nav-right {
   display: flex;
   gap: 24px;
+}
+
+/* =========================
+   MOBILE NAV
+========================= */
+
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hamburger span {
+  width: 22px;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.85;
+}
+
+/* slide-down menu */
+.mobile-menu {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(14px);
+
+  transform: translateY(-120%);
+  transition: transform 0.35s ease;
+  z-index: 99;
+}
+
+.mobile-menu.open {
+  transform: translateY(0);
 }
 
 /* =========================
@@ -409,12 +475,12 @@ body::before {
 }
 
 /* subtle vertical guide */
-#about-vera .hero-split::before {
+/* #about-vera .hero-split::before {
   content: "";
   position: absolute;
 
   left: 18%;
-  transform: translateX(-18%); /* true center of content */
+  transform: translateX(-18%); 
 
   top: -20px;
   width: 1px;
@@ -431,7 +497,7 @@ body::before {
 /* optional: reduce total void slightly */
 #about-vera.hero {
   max-height: 90vh;
-}
+} */
 
 .patch-notes {
   font-size: clamp(2.2rem, 5vw, 3.2rem);
@@ -853,27 +919,50 @@ body::before {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-bottom: 32px;
+
+  padding-bottom: calc(32px + env(safe-area-inset-bottom)); /* 🔑 */
 }
 
+/* One row per message */
+.message-row {
+  display: flex;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+/* alignment */
+.message-row.user {
+  justify-content: flex-start;
+}
+
+.message-row.vera {
+  justify-content: flex-end;
+}
+
+/* Chat bubbles */
+
 .bubble {
+  display: inline-block;      /* 🔑 shrink to content */
+  width: fit-content;         /* 🔑 no forced width */
   max-width: 70%;
+
   padding: 10px 14px;
   border-radius: 16px;
   font-size: 14px;
   line-height: 1.4;
+
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
+
+/* USER — LEFT */
 .bubble.user {
-  align-self: flex-start;
   background: #1e2a36;
 }
 
+/* VERA — RIGHT */
 .bubble.vera {
-  align-self: flex-end;
   background: #2f3a44;
 }
 
@@ -885,11 +974,18 @@ body::before {
   display: flex;
   align-items: center;
   gap: 12px;
+
   padding: 14px;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom)); /* 🔑 */
+
   border-top: 1px solid rgba(255,255,255,0.08);
   background: rgba(0,0,0,0.25);
   backdrop-filter: blur(8px);
+
+  position: sticky;
+  bottom: 0;
 }
+
 
 #record {
   width: 56px;
@@ -927,6 +1023,21 @@ body::before {
 }
 
 @media (max-width: 768px) {
+
+  /* 🔑 NAV FIX (ADD THIS) */
+  .nav-right {
+    gap: 16px;
+  }
+
+  .nav-right .nav-link:not(.music-toggle) {
+    display: none; /* hide text links */
+  }
+
+  .hamburger {
+    display: flex; /* show triple-line menu */
+  }
+
+  /* 🔑 REST OF YOUR EXISTING MOBILE STYLES */
   .title-text {
     letter-spacing: 0.2em;
     font-size: 28px;
@@ -939,6 +1050,14 @@ body::before {
 
   body {
     overflow: auto;
+  }
+
+  body.vera-mode {
+    overflow: hidden; /* prevent background scroll */
+  }
+
+  .chat {
+    height: 100dvh; /* dynamic viewport height */
   }
 
   .sidebar {
@@ -973,5 +1092,17 @@ body::before {
 
   .mobile-only {
     display: inline;
+  }
+
+  #server-status-inline {
+    position: fixed;
+    right: 16px;
+    top: 40%;
+    transform: translateY(-60%);
+
+    font-size: 12px;
+    opacity: 0.85;
+
+    pointer-events: none; /* purely informational */
   }
 }

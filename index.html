@@ -52,6 +52,7 @@
 <section id="home">
 
   <!-- TOP NAV -->
+  <!-- TOP NAV -->
   <nav class="top-nav">
     <div class="nav-left">
       <a href="/" class="nav-logo" id="nav-home">VERA</a>
@@ -303,15 +304,14 @@
     <aside class="sidebar">
 
       <section class="sidebar-section">
-        <h2>About VERA</h2>
-        <p>
-          VERA is a conversational AI demonstrating real-time
-          speech recognition, reasoning, and voice synthesis.
-        </p>
-        <p>
-          Built to showcase an end-to-end ASR → LLM → TTS pipeline.
-        </p>
-        <p><strong>Created by Nom</strong></p>
+        <h2>How to Use</h2>
+        <ol>
+          <li>Click the microphone to start listening</li>
+          <li>Speak naturally</li>
+          <li>Pause to let VERA think and respond</li>
+          <li>Click the microphone again to stop listening</li>
+          <li><strong>Refresh the page to return to the main website</strong></li>
+        </ol>
       </section>
 
       <section class="sidebar-section">
@@ -477,9 +477,21 @@ if (sessionStorage.getItem(INTRO_SEEN_KEY)) {
 
   // Enter VERA App
   enterBtn.onclick = () => {
+    // 🔇 Stop background music when entering app
+    if (!bgMusic.paused) {
+      bgMusic.pause();
+      bgMusic.currentTime = 0; // optional: reset track
+      musicToggle.classList.remove("active");
+      localStorage.setItem(MUSIC_KEY, "false");
+    }
+
+    // Switch UI
     home.hidden = true;
     veraApp.hidden = false;
+
     document.body.classList.add("app-open");
+    document.body.classList.add("vera-mode");
+
     window.scrollTo(0, 0);
   };
 
@@ -626,42 +638,103 @@ on creating meaningful interactions rather than just automation.`;
 
   revealEls.forEach(el => revealObserver.observe(el));
   /* =========================
-   BACKGROUND MUSIC
-========================= */
+    BACKGROUND MUSIC
+  ========================= */
 
-const bgMusic = document.getElementById("bg-music");
-const musicToggle = document.getElementById("music-toggle");
+  const bgMusic = document.getElementById("bg-music");
+  const musicToggle = document.getElementById("music-toggle");
 
-const BASE_MUSIC_VOLUME = 0.25;
-const MUSIC_KEY = "vera_music_enabled";
+  const BASE_MUSIC_VOLUME = 0.25;
+  const MUSIC_KEY = "vera_music_enabled";
 
-bgMusic.volume = BASE_MUSIC_VOLUME;
-bgMusic.loop = true;
+  bgMusic.volume = BASE_MUSIC_VOLUME;
+  bgMusic.loop = true;
 
-/* restore preference (but DO NOT autoplay sound) */
-const musicEnabled = localStorage.getItem(MUSIC_KEY) === "false";
-if (musicEnabled) {
-  musicToggle.classList.add("active");
-}
-
-/* user gesture REQUIRED */
-musicToggle.onclick = async () => {
-  if (bgMusic.paused) {
-    try {
-      await bgMusic.play(); // 🔑 this unlocks audio
-      bgMusic.volume = BASE_MUSIC_VOLUME;
-      musicToggle.classList.add("active");
-      localStorage.setItem(MUSIC_KEY, "true");
-    } catch (e) {
-      console.warn("Music play blocked:", e);
-    }
-  } else {
-    bgMusic.pause();
-    musicToggle.classList.remove("active");
-    localStorage.setItem(MUSIC_KEY, "false");
+  /* restore preference (but DO NOT autoplay sound) */
+  const musicEnabled = localStorage.getItem(MUSIC_KEY) === "false";
+  if (musicEnabled) {
+    musicToggle.classList.add("active");
   }
+
+  /* user gesture REQUIRED */
+  musicToggle.onclick = async () => {
+    if (bgMusic.paused) {
+      try {
+        await bgMusic.play(); // 🔑 this unlocks audio
+        bgMusic.volume = BASE_MUSIC_VOLUME;
+        musicToggle.classList.add("active");
+        localStorage.setItem(MUSIC_KEY, "true");
+      } catch (e) {
+        console.warn("Music play blocked:", e);
+      }
+    } else {
+      bgMusic.pause();
+      musicToggle.classList.remove("active");
+      localStorage.setItem(MUSIC_KEY, "false");
+    }
+  };
+  /* =========================
+    MOBILE NAV LOGIC
+  ========================= */
+
+  const hamburger = document.getElementById("hamburger");
+  const mobileMenu = document.getElementById("mobile-menu");
+  const navRight = document.getElementById("nav-right");
+
+  let navMoved = false;
+
+  function enableMobileNav() {
+    if (navMoved) return;
+
+    // move existing buttons into mobile menu
+    [...navRight.children].forEach(el => {
+      mobileMenu.appendChild(el);
+    });
+
+    navMoved = true;
+  }
+
+  function disableMobileNav() {
+    if (!navMoved) return;
+
+    // move buttons back to top nav
+    [...mobileMenu.children].forEach(el => {
+      navRight.appendChild(el);
+    });
+
+    mobileMenu.classList.remove("open");
+    navMoved = false;
+  }
+
+  function handleResize() {
+    if (window.innerWidth <= 768) {
+      enableMobileNav();
+    } else {
+      disableMobileNav();
+    }
+  }
+
+  handleResize();
+  window.addEventListener("resize", handleResize);
+
+  hamburger.onclick = () => {
+    mobileMenu.classList.toggle("open");
 };
 
+  function addMessage(text, sender) {
+    const role = sender === "user" ? "user" : "vera";
+
+    const row = document.createElement("div");
+    row.className = `message-row ${role}`;
+
+    const bubble = document.createElement("div");
+    bubble.className = `bubble ${role}`;
+    bubble.textContent = text;
+
+    row.appendChild(bubble);
+    conversation.appendChild(row);
+    conversation.scrollTop = conversation.scrollHeight;
+  }
 </script>
 
 

@@ -95,11 +95,42 @@ function setStatus(text, cls) {
 }
 
 function addBubble(text, who) {
-  const div = document.createElement("div");
-  div.className = `bubble ${who}`;
-  div.textContent = text;
-  convoEl.appendChild(div);
+  const row = document.createElement("div");
+  row.className = `message-row ${who}`;
+
+  const bubble = document.createElement("div");
+  bubble.className = `bubble ${who}`;
+  bubble.textContent = text;
+
+  row.appendChild(bubble);
+  convoEl.appendChild(row);
   convoEl.scrollTop = convoEl.scrollHeight;
+}
+
+async function sendCommand(action) {
+  const formData = new FormData();
+  formData.append("session_id", sessionId);
+  formData.append("action", action);
+
+  await fetch(`${API_URL}/command`, {
+    method: "POST",
+    body: formData
+  });
+}
+
+async function sendUnpauseCommand() {
+  const formData = new FormData();
+
+  // send a tiny silent blob (backend already ignores noise safely)
+  const silentBlob = new Blob([new Uint8Array(2000)], { type: "audio/webm" });
+
+  formData.append("audio", silentBlob);
+  formData.append("session_id", sessionId);
+
+  await fetch(`${API_URL}/infer`, {
+    method: "POST",
+    body: formData
+  });
 }
 
 /* =========================
@@ -282,10 +313,17 @@ recordBtn.onclick = async () => {
     return;
   }
 
-  paused = !paused;
-  processing = false;
-  startListening();
-};
+  if (paused) {
+  paused = false;
+  await sendCommand("unpause");
+} else {
+  paused = true;
+  await sendCommand("pause");
+}
+
+processing = false;
+startListening();
+}
 
 
 /* =========================

@@ -177,6 +177,22 @@ async def startup():
 # =========================
 # INFERENCE
 # =========================
+@app.post("/command")
+async def command(
+    session_id: str = Form(...),
+    action: str = Form(...)
+):
+    session_id = safe_id(session_id)
+
+    if action == "pause":
+        paused_sessions.add(session_id)
+        return {"status": "paused"}
+
+    if action == "unpause":
+        paused_sessions.discard(session_id)
+        return {"status": "unpaused"}
+
+    raise HTTPException(400, "Unknown command")
 
 @app.post("/infer")
 async def infer(
