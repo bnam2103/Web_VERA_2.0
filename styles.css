@@ -135,6 +135,55 @@ body::before {
   gap: 24px;
 }
 
+/* =========================
+   MUSIC INDICATOR (FINAL FIX)
+========================= */
+
+.music-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* container — COMPLETELY OFF by default */
+.music-indicator {
+  display: none;                /* 🔑 HARD STOP */
+  gap: 2px;
+  height: 12px;
+}
+
+/* bars — STATIC baseline */
+.music-indicator i {
+  width: 2px;
+  height: 100%;
+  background: currentColor;
+  opacity: 0.6;
+  transform-origin: bottom;
+  transform: scaleY(0.35);
+  animation: none;              /* 🔑 HARD STOP */
+}
+
+/* ONLY when music is ACTUALLY ON */
+.music-toggle.active .music-indicator {
+  display: inline-flex;         /* 🔑 appear */
+}
+
+.music-toggle.active .music-indicator i {
+  animation: musicWave 1.4s ease-in-out infinite;
+}
+
+/* stagger */
+.music-toggle.active .music-indicator i:nth-child(1) { animation-delay: 0s; }
+.music-toggle.active .music-indicator i:nth-child(2) { animation-delay: 0.18s; }
+.music-toggle.active .music-indicator i:nth-child(3) { animation-delay: 0.36s; }
+
+/* waveform animation */
+@keyframes musicWave {
+  0%   { transform: scaleY(0.35); opacity: 0.4; }
+  50%  { transform: scaleY(1);    opacity: 0.9; }
+  100% { transform: scaleY(0.4);  opacity: 0.5; }
+}
+
 .nav-link {
   background: none;
   border: none;

@@ -43,7 +43,9 @@
     Skip the trailer
   </button>
 </div>
-
+<audio id="bg-music" loop preload="auto">
+  <source src="background-music.mp3" type="audio/mpeg">
+</audio>
 <!-- =========================
      LANDING / HOME
 ========================= -->
@@ -56,6 +58,16 @@
     </div>
 
     <div class="nav-right">
+      <button
+        class="nav-link music-toggle"
+        id="music-toggle"
+        aria-label="Toggle background music"
+      >
+        MUSIC
+        <span class="music-indicator" aria-hidden="true">
+          <i></i><i></i><i></i>
+        </span>
+      </button>
       <button class="nav-link" id="nav-about-vera">About VERA</button>
       <button class="nav-link" id="nav-about-me">About Me</button>
       <button class="nav-link" id="nav-projects">My Other Projects</button>
@@ -613,6 +625,43 @@ on creating meaningful interactions rather than just automation.`;
   );
 
   revealEls.forEach(el => revealObserver.observe(el));
+  /* =========================
+   BACKGROUND MUSIC
+========================= */
+
+const bgMusic = document.getElementById("bg-music");
+const musicToggle = document.getElementById("music-toggle");
+
+const BASE_MUSIC_VOLUME = 0.25;
+const MUSIC_KEY = "vera_music_enabled";
+
+bgMusic.volume = BASE_MUSIC_VOLUME;
+bgMusic.loop = true;
+
+/* restore preference (but DO NOT autoplay sound) */
+const musicEnabled = localStorage.getItem(MUSIC_KEY) === "false";
+if (musicEnabled) {
+  musicToggle.classList.add("active");
+}
+
+/* user gesture REQUIRED */
+musicToggle.onclick = async () => {
+  if (bgMusic.paused) {
+    try {
+      await bgMusic.play(); // 🔑 this unlocks audio
+      bgMusic.volume = BASE_MUSIC_VOLUME;
+      musicToggle.classList.add("active");
+      localStorage.setItem(MUSIC_KEY, "true");
+    } catch (e) {
+      console.warn("Music play blocked:", e);
+    }
+  } else {
+    bgMusic.pause();
+    musicToggle.classList.remove("active");
+    localStorage.setItem(MUSIC_KEY, "false");
+  }
+};
+
 </script>
 
 
