@@ -31,8 +31,8 @@ MAX_TURNS = 20
 
 TARGET_SR = 16000
 MIN_AUDIO_BYTES = 1500
-MIN_AUDIO_RMS = 0.020   # was 0.050
-MIN_VOICED_SECONDS = 0.08
+MIN_AUDIO_RMS = 0.050  # 🔑 ENERGY GATE (MATCHES FRONTEND)
+MIN_VOICED_SECONDS = 0.05   # 🔑 NEW
 ZCR_MIN = 0.01
 ZCR_MAX = 0.40            # 🔑 NEW (TUNER; fast speech fails with lower number)
 
@@ -223,14 +223,7 @@ async def infer(
 
     samples = np.array(seg.get_array_of_samples(), dtype=np.float32)
 
-    samples -= np.mean(samples)
-
-    # compute gates on raw amplitude
-    rms = np.sqrt(np.mean(samples ** 2))
-    zcr = zero_crossing_rate(samples)
-    voiced_sec = voiced_duration(samples, TARGET_SR, thresh=0.01)
-
-    # THEN normalize for ASR
+    # robust normalization (always correct)
     peak = np.max(np.abs(samples))
     if peak > 0:
         samples /= peak
@@ -245,13 +238,13 @@ async def infer(
 
     print(
         f"[DEBUG] rms={rms:.4f} "
-        # f"zcr={zcr:.3f} "
+        f"zcr={zcr:.3f} "
         f"voiced={voiced_sec:.3f}s"
     )
 
     if (
         rms < MIN_AUDIO_RMS or
-        # zcr < ZCR_MIN or zcr > ZCR_MAX or
+        zcr < ZCR_MIN or zcr > ZCR_MAX or
         voiced_sec < MIN_VOICED_SECONDS
     ):
         print("[AUDIO] Dropped noise")
@@ -274,7 +267,7 @@ async def infer(
 
         print(f"[ASR] conf={confidence:.3f} text=\"{transcript}\"")
 
-        if confidence < -0.35: #(TUNER)
+        if confidence < -0.5: #(TUNER)
             print("[ASR] Dropped low-confidence transcription")
             return {"skip": True}
 
