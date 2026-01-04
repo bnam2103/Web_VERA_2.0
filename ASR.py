@@ -21,10 +21,16 @@ DURATION = 5               # seconds to record
 processor = WhisperProcessor.from_pretrained(MODEL_PATH)
 model = WhisperForConditionalGeneration.from_pretrained(MODEL_PATH)
 
+FORCED_DECODER_IDS = processor.get_decoder_prompt_ids(
+    language="en",
+    task="transcribe"
+)
+
 # Use GPU if available
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = model.to(device)
 model.eval()
+
 
 print(f"Model loaded on: {device}")
 
@@ -162,8 +168,11 @@ def transcribe_long(audio_np):
         with torch.no_grad():
             outputs = model.generate(
                 input_features,
+                forced_decoder_ids=FORCED_DECODER_IDS,  # 🔑 ENGLISH ONLY
                 return_dict_in_generate=True,
-                output_scores=True
+                output_scores=True,
+                temperature=0.0,                        # 🔑 deterministic
+                no_repeat_ngram_size=3
             )
 
         # Decode text
