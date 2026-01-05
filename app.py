@@ -12,12 +12,16 @@ import numpy as np
 import io
 import json
 import string
+from pydub.playback import play
 
 from intent import is_command
 from ASR import transcribe_long
 from LLM import VeraAI
 from TTS import speak_to_file
 from pydub import AudioSegment
+import random
+from fastapi.staticfiles import StaticFiles
+
 
 # =========================
 # CONFIG
@@ -37,13 +41,13 @@ ZCR_MIN = 0.01
 ZCR_MAX = 0.40            # 🔑 NEW (TUNER; fast speech fails with lower number)
 
 MAX_FEEDBACK_BYTES = 1 * 1024 * 1024  # 1 MB
-
 # =========================
 # APP
 # =========================
 
 app = FastAPI()
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -108,10 +112,10 @@ def voiced_duration(samples: np.ndarray, sr: int, thresh: float) -> float:
 # =========================
 
 def check_time():
-    return f"The current time is {datetime.now().strftime('%I:%M %p')}."
+    return f"The current time is {datetime.now().strftime('%I:%M %p')}, sir."
 
 def check_date():
-    return f"Today's date is {datetime.now().strftime('%A, %B %d, %Y')}."
+    return f"Today's date is {datetime.now().strftime('%A, %B %d, %Y')}, sir."
 
 def detect_intent(text: str, history) -> str | None:
     # cleaned = text.lower().translate(
@@ -120,9 +124,9 @@ def detect_intent(text: str, history) -> str | None:
     messages = build_messages(history, text)
     reply = vera.generate(messages).strip()
 
-    if any(k in reply for k in ["current time", "realtime", "real time","real-time"]):
+    if any(k in reply for k in ["access to current time"]):
         return "time"
-    if any(k in reply for k in ["current date", "current year", "current month"]):
+    if any(k in reply for k in ["access to current date"]):
         return "date"
     return None
 
@@ -169,7 +173,7 @@ async def log_metrics():
             f"ASR={asr_lock.locked()} LLM={llm_lock.locked()} TTS={tts_lock.locked()}"
         )
         await asyncio.sleep(10)
-
+    
 @app.on_event("startup")
 async def startup():
     asyncio.create_task(log_metrics())
@@ -200,6 +204,9 @@ async def infer(
     session_id: str = Form(...),
 ):
     t_start = perf_counter()
+    t_asr = 0.0
+    t_llm = 0.0
+    t_tts = 0.0
 
     session_id = safe_id(session_id)
     cleanup_sessions()
@@ -263,9 +270,10 @@ async def infer(
     # =========================
 
     async with asr_lock:
+        t0 = perf_counter()
         transcript, confidence = transcribe_long(samples)
-
         print(f"[ASR] conf={confidence:.3f} text=\"{transcript}\"")
+        t_asr = perf_counter() - t0
 
         if confidence < -0.5: #(TUNER)
             print("[ASR] Dropped low-confidence transcription")
@@ -317,7 +325,9 @@ async def infer(
     else:
         messages = build_messages(history, transcript)
         async with llm_lock:
-            reply = vera.generate(messages).strip()
+            t0 = perf_counter()
+            reply = await asyncio.to_thread(vera.generate, messages)
+            t_llm = perf_counter() - t0
 
         history.append({"role": "user", "content": transcript})
         history.append({"role": "assistant", "content": reply})
@@ -334,14 +344,24 @@ async def infer(
     path = tts_dir / fname
 
     async with tts_lock:
+        t0 = perf_counter()
         speak_to_file(reply, path)
+        t_tts = perf_counter() - t0
 
-    print(f"[LATENCY] TOTAL={perf_counter() - t_start:.3f}s")
+    t_total = perf_counter() - t_start
+
+    print(
+        "[LATENCY] "
+        f"ASR={t_asr:.3f}s | "
+        f"LLM={t_llm:.3f}s | "
+        f"TTS={t_tts:.3f}s | "
+        f"TOTAL={t_total:.3f}s"
+    )
 
     return {
         "transcript": transcript,
         "reply": reply,
-        "audio_url": f"/audio/{session_id}/{today()}/{fname}"
+        "audio_url": f"/audio/{session_id}/{today()}/{fname}",
     }
 
 # =========================

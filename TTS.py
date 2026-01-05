@@ -323,3 +323,25 @@ def speak_to_file(text: str, output_path: Path) -> Path:
     write(output_path, 16000, final_audio)
 
     return output_path
+
+# base = Path(r"C:\Users\User\Documents\VERA\Online_demo\static\fillers")
+
+# speak_to_file(
+#     "Give me a moment, sir.",
+#     base / "moment.wav"
+# )
+
+# speak_to_file(
+#     "One second, sir.",
+#     base / "one_second.wav"
+# )
+
+# speak_to_file(
+#     "Give me a second, sir.",
+#     base / "give_me_a_second.wav"
+# )
+
+# speak_to_file(
+#     "One moment, sir.",
+#     base / "one_moment.wav"
+# )
